@@ -1,46 +1,41 @@
-int IRinput = 4;
-float t = 0.;
-float Tdiff=0.;
-float rpm;
-int interruptPin=2;
-
-
-void setup() {
-  // put your setup code here, to run once:
- pinMode(13,OUTPUT);
-  pinMode(IRinput,INPUT);
-  attachInterrupt(digitalPinToInterrupt(interruptPin), blink, CHANGE);
-  Serial.begin(9600);
   
+float value=0;
+float rev=0;
+int rpm=0;
+int oldtime=0;
+int time;
+ 
+void isr() //interrupt service routine
+{
+rev++;
 }
+ 
+void setup()
+{
+Serial.begin(9600);; 
+attachInterrupt(0,isr,RISING); //attaching the interru(pin,OUTPUT);
 
-void loop() {
-  // put your main code here, to run repeatedly:
-  if (digitalRead(IRinput)==HIGH)
-   {digitalWrite(13,HIGH);
-  
-   }
-   else 
-   {
-    digitalWrite(13,LOW);
-   }
-
-   float Reading1 = digitalRead(13);
-  
-   Serial.println(Reading1);
 }
+ 
+void loop()
+{
+  
+delay(1000);
+detachInterrupt(0); //detaches the interrupt
+time =millis()-oldtime; //finds the time
+rpm=(rev/time)*60000/2; //calculates rpm for blades  // 1 rev==> x 
+                                                     // y rev==> 60000
+oldtime=millis(); //saves the current time
+rev=0;
+//Serial.clear;
+
+Serial.print( rpm);
+Serial.println(" RPM");
+attachInterrupt(0,isr,RISING);
 
 
-void blink(){ 
-   boolean PrevState = LOW;
-   boolean NState = digitalRead(IRinput);
-   if (NState!=PrevState){
-    Tdiff = micros()- t;
-    rpm =60000/(Tdiff*2);
-    t= micros();
-    PrevState = NState;
-    
-    Serial.println(rpm);
-    return;
-   }
+
+
+ 
+  
 }
